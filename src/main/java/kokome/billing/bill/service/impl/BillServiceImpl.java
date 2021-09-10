@@ -101,7 +101,7 @@ public class BillServiceImpl implements BillService {
 
     public Float applyAmountBasedDiscount(Float billAmount, Float discountAmount){
         if(billAmount > 100) {
-            int multiplier = (int) (billAmount % 100);
+            int multiplier = (int) (billAmount / 100);
 
             if (multiplier < 1)
                 return billAmount;

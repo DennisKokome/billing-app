@@ -10,7 +10,9 @@ import org.springframework.data.annotation.ReadOnlyProperty;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by oaitse on Sep, 09, 2021
@@ -37,5 +39,6 @@ public class Bill {
     private float discount;
     private LocalDate issued;
     private BillStatus billStatus;
-//    private List<BillProduct> products;
+//    @ManyToOne
+//    private List<BillProduct> products = new ArrayList<BillProduct>();
 }
