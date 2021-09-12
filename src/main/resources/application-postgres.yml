@@ -1,0 +1,17 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    driverClassName: org.postgresql.Driver
+    password: Yondaime2650
+    url: jdbc:postgresql://localhost:5432/billing
+    username: postgres
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+springdoc:
+  api-docs:
+    path: billing-docs
