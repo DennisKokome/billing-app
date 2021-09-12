@@ -22,6 +22,11 @@ swagger configuration for api documentation
 - test cases run on h2 database
 - navigating to folder "src/test/java/kokome/billing" open the junit test you want to run and click the play button
 
+<h3>Api Documentation</h3>
+When the application is runnign api's are accessed on the url's below
+- http://localhost:8080/swagger-ui/index.html?configUrl=/billing-docs/swagger-config#/
+- http://localhost:8080/billing-docs
+
 <h3>Code coverage</h3>
 - run the test with maven
 - on the project directory, navigate to "target/site/jacoco" and open the index.html file 

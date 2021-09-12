@@ -39,6 +39,7 @@ public class Bill {
     private float discount;
     private LocalDate issued;
     private BillStatus billStatus;
-//    @ManyToOne
+
+//    @OneToMany
 //    private List<BillProduct> products = new ArrayList<BillProduct>();
 }

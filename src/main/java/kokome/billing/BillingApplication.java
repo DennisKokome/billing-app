@@ -1,5 +1,7 @@
 package kokome.billing;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 import kokome.billing.profile.entity.User;
 import kokome.billing.profile.service.ProfileService;
 import kokome.billing.role.service.RoleService;
@@ -17,6 +19,7 @@ import java.time.LocalDate;
 import static kokome.billing.enumaration.ProductType.*;
 
 @SpringBootApplication
+@OpenAPIDefinition(info = @Info(title = "Billing Application", version = "1.0", description = "bill me"))
 public class BillingApplication {
 
 	public static void main(String[] args) {
