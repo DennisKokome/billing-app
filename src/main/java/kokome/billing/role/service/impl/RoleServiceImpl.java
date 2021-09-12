@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 /**
  * Created by oaitse on Sep, 10, 2021
@@ -22,5 +23,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role createRole(Role role) {
         return roleRepository.save(role);
+    }
+
+    @Override
+    public List<Role> findAllRoles() {
+        return roleRepository.findAll();
     }
 }
