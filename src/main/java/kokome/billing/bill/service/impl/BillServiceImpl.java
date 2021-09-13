@@ -3,8 +3,6 @@ package kokome.billing.bill.service.impl;
 import kokome.billing.profile.entity.User;
 import kokome.billing.profile.repository.ProfileRepository;
 import kokome.billing.bill.entity.Bill;
-import kokome.billing.bill.entity.BillProduct;
-import kokome.billing.bill.repository.BillProductRepository;
 import kokome.billing.bill.repository.BillRepository;
 import kokome.billing.bill.service.BillService;
 import kokome.billing.product.entity.Product;
@@ -14,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,14 +28,12 @@ import static kokome.billing.util.KnownRoles.CUSTOMER;
 public class BillServiceImpl implements BillService {
 
     private BillRepository billRepository;
-    private BillProductRepository billProductRepository;
     private ProfileRepository profileRepository;
 
     @Autowired
-    public BillServiceImpl(BillRepository billRepository, BillProductRepository billProductRepository,
+    public BillServiceImpl(BillRepository billRepository,
                            ProfileRepository profileRepository){
         this.billRepository = billRepository;
-        this.billProductRepository = billProductRepository;
         this.profileRepository = profileRepository;
     }
 
@@ -53,8 +50,14 @@ public class BillServiceImpl implements BillService {
         bill.setInvoiceNumber(generateInvoiceNumber());
         bill.setUser(user);
         bill.setBillStatus(NOT_PAID);
-        bill.setDiscount(getPercentageDiscount(user));
+        bill.setPercentageDiscount(getPercentageDiscount(user));
         bill.setIssued(LocalDate.now());
+
+        HashMap<String, Float> productMap = new HashMap<>();
+
+        products.stream()
+                .forEach(product -> productMap.put(product.getName(), product.getPrice()));
+        bill.setProducts(productMap);
 
         Float fullAmount = 0F;
         for (Product product : products) {
@@ -74,13 +77,9 @@ public class BillServiceImpl implements BillService {
             groceryAmount = groceryAmount + product.getPrice();
         }
 
-        Float fullyDiscountedBill = applyPercentageBasedDiscount(amountBasedDiscount, groceryAmount,  bill.getDiscount());
+        Float fullyDiscountedBill = applyPercentageBasedDiscount(amountBasedDiscount, groceryAmount,  bill.getPercentageDiscount());
         bill.setDiscountedAmount(fullyDiscountedBill);
         Bill savedBill = billRepository.save(bill);
-
-        BillProduct billProduct;
-        products.stream()
-                .forEach(product -> billProductRepository.save(new BillProduct(savedBill, product, product.getPrice())));
 
         return savedBill;
     }

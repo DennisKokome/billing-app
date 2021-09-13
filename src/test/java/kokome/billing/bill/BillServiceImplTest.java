@@ -8,7 +8,6 @@ import kokome.billing.profile.entity.User;
 import kokome.billing.profile.repository.ProfileRepository;
 import kokome.billing.role.entity.Role;
 import kokome.billing.bill.entity.Bill;
-import kokome.billing.bill.repository.BillProductRepository;
 import kokome.billing.bill.repository.BillRepository;
 import kokome.billing.bill.service.impl.BillServiceImpl;
 import kokome.billing.product.entity.Product;
@@ -21,7 +20,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static kokome.billing.enumaration.BillStatus.NOT_PAID;
 import static kokome.billing.enumaration.ProductType.*;
@@ -37,9 +38,6 @@ public class BillServiceImplTest {
     private BillRepository billRepository;
 
     @Mock
-    private BillProductRepository billProductRepository;
-
-    @Mock
     private ProfileRepository profileRepository;
 
     @InjectMocks
@@ -47,12 +45,12 @@ public class BillServiceImplTest {
 
     @Test
     public void testGenerateBill(){
-        Product product = new Product(1L, "Bose HeadPhones",3750.60F, ELECTRONIC);
-        Product product1 = new Product(2L, "Milk",10.60F, GROCERY);
-        Product product2 = new Product(3L, "Shirt",70.60F, CLOTHING);
-        Product product3 = new Product(4L, "Shoes",150.60F, CLOTHING);
+        Product headPhone = new Product(1L, "Bose HeadPhones",3750.60F, ELECTRONIC);
+        Product milk = new Product(2L, "Milk",10.60F, GROCERY);
+        Product shirt = new Product(3L, "Shirt",70.60F, CLOTHING);
+        Product shoes = new Product(4L, "Shoes",150.60F, CLOTHING);
 
-        List<Product> products = List.of(product, product1, product2, product3);
+        List<Product> products = List.of(headPhone, milk, shirt, shoes);
 
         User user = new User(1L,
                 "Oaitse, ",
@@ -72,35 +70,39 @@ public class BillServiceImplTest {
         bill.setInvoiceNumber(billService.generateInvoiceNumber());
         bill.setUser(user);
         bill.setBillStatus(NOT_PAID);
-        bill.setDiscount(billService.getPercentageDiscount(user));
+        bill.setPercentageDiscount(billService.getPercentageDiscount(user));
         bill.setIssued(LocalDate.now());
+
+        HashMap<String, Float> productMap = new HashMap<>();
+
+        products.stream()
+                .forEach(product -> productMap.put(product.getName(), product.getPrice()));
+        bill.setProducts(productMap);
+
         bill.setFullAmount(3982.40F);
         bill.setDiscountedAmount(0F);
 
         Float amountBasedDiscount = billService.applyAmountBasedDiscount(3982.40F, 5F);
-        Float fullyDiscountedBill = billService.applyPercentageBasedDiscount(amountBasedDiscount, 10.60F, bill.getDiscount());
+
+        //get grocery products
+        List<Product> groceryProducts = products.stream()
+                .filter(product -> product.getProductType().name().equals("GROCERY"))
+                .collect(Collectors.toList());
+
+        Float groceryAmount = 0F;
+        for (Product product : groceryProducts) {
+            groceryAmount = groceryAmount + product.getPrice();
+        }
+
+        Float fullyDiscountedBill = billService.applyPercentageBasedDiscount(amountBasedDiscount, 10.60F, bill.getPercentageDiscount());
         bill.setDiscountedAmount(fullyDiscountedBill);
 
+
         when(billRepository.save(bill)).thenReturn(bill);
+        Bill generatedBill = billRepository.save(bill);
 
-
-//        BillProduct billProduct;
-//        products.stream()
-//                .forEach(product -> billProductRepository.save(new BillProduct(1L, bill, product, product.getPrice())));
-//
-//        BillProduct billProduct = new BillProduct();
-//        when(billProductRepository.save(billProduct)).thenReturn(billProduct);
-
-        Bill savedBill = billService.generateBillByUserId(user.getId(), products);
-
-//        System.out.println(bill.getUser().getUsername());
-//        System.out.println(savedBill.getUser().getUsername());
-//
-//        System.out.println(bill.getId());
-//        System.out.println(savedBill.getId());
-
-//        Assert.assertEquals(bill, savedBill);
-//        verify(billRepository).save(bill);
-//        verify(billProductRepository).save(billProduct);
+        Assert.assertNotNull(generatedBill.getId());
+        Assert.assertEquals(bill, generatedBill);
+        verify(billRepository).save(bill);
     }
 }

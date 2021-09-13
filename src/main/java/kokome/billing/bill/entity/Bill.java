@@ -11,6 +11,7 @@ import org.springframework.data.annotation.ReadOnlyProperty;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -36,10 +37,9 @@ public class Bill {
     private User user;
     private float fullAmount;
     private float discountedAmount;
-    private float discount;
+    private float percentageDiscount;
+//    private float hundredCashDiscount;
     private LocalDate issued;
     private BillStatus billStatus;
-
-//    @OneToMany
-//    private List<BillProduct> products = new ArrayList<BillProduct>();
+    private HashMap<String, Float> products;
 }
